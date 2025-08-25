@@ -1,0 +1,70 @@
+{
+  "version": "1.0.0",
+  "title": "K8s: Kill a pod, service stays healthy",
+  "description": "Steady-state: /readyz returns 200 and latency < 150ms. Action: delete one pod. Validate: service still OK.",
+  "tags": ["kubernetes", "minikube", "pod-kill"],
+  "configuration": {
+    "kubeconfig_path": "~/.kube/config",
+    "namespace": "chaos-poc",
+    "app_label": "app=podinfo",
+    "service_url": "http://127.0.0.1:59813"
+  },
+  "steady-state-hypothesis": {
+    "title": "Service is healthy and fast enough",
+    "probes": [
+      {
+        "type": "probe",
+        "name": "readyz-returns-200",
+        "tolerance": 200,
+        "provider": {
+          "type": "http",
+          "timeout": 3,
+          "url": "${service_url}/readyz",
+          "method": "GET"
+        }
+      },
+      {
+        "type": "probe",
+        "name": "readyz-latency-under-150ms",
+        "tolerance": {
+          "type": "range",
+          "range": [0, 0.150]
+        },
+        "provider": {
+          "type": "python",
+          "module": "chaospoc.probes",
+          "func": "measure_latency_seconds",
+          "arguments": {
+            "url": "${service_url}/readyz",
+            "timeout": 2
+          }
+        }
+      }
+    ]
+  },
+  "method": [
+    {
+      "type": "action",
+      "name": "delete-one-pod",
+      "provider": {
+        "type": "python",
+        "module": "chaosk8s.pod.actions",
+        "func": "terminate_pods",
+        "arguments": {
+          "label_selector": "${app_label}",
+          "name_pattern": null,
+          "rand": true,
+          "ns": "${namespace}",
+          "grace_period": 0
+        }
+      },
+      "pauses": {
+        "after": 5
+      }
+    }
+  ],
+  "rollbacks": [],
+  "controls": [
+    { "name": "log" }
+  ]
+}
