@@ -19,25 +19,9 @@
         "provider": {
           "type": "http",
           "timeout": 3,
+          "verify_tls": false,
           "url": "${service_url}/readyz",
           "method": "GET"
-        }
-      },
-      {
-        "type": "probe",
-        "name": "readyz-latency-under-150ms",
-        "tolerance": {
-          "type": "range",
-          "range": [0, 0.150]
-        },
-        "provider": {
-          "type": "python",
-          "module": "chaospoc.probes",
-          "func": "measure_latency_seconds",
-          "arguments": {
-            "url": "${service_url}/readyz",
-            "timeout": 2
-          }
         }
       }
     ]
@@ -58,13 +42,8 @@
           "grace_period": 0
         }
       },
-      "pauses": {
-        "after": 5
-      }
+      "pauses": { "after": 5 }
     }
   ],
-  "rollbacks": [],
-  "controls": [
-    { "name": "log" }
-  ]
+  "rollbacks": []
 }

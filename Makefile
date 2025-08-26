@@ -7,7 +7,7 @@ install:
 	pip install -r requirements.txt
 
 run:
-	chaos run experiment.json -v
+	chaos run experiment.json
 
 report:
 	chaos report experiment.json ./chaos.log --export-format=html --output=report.html || true

@@ -1,9 +1,0 @@
-controls:
-  - name: log
-    provider:
-      type: python
-      module: chaoslib.controls.logging
-      arguments:
-        level: INFO
-        log_format: "%(asctime)s %(levelname)s %(message)s"
-

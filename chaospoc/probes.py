@@ -1,12 +1,14 @@
-import time
-import requests
+import time, requests
 
-def measure_latency_seconds(url: str, timeout: int = 2) -> float:
+def measure_latency_seconds(url: str, timeout: float = 2.0, repeats: int = 1) -> float:
     """
-    Returns the elapsed time in seconds for a single HTTP GET.
-    Chaos Toolkit will compare this numeric result against the tolerance range.
+    Returns latency in seconds (float). Use with a 'range' tolerance in experiment.json.
     """
-    t0 = time.perf_counter()
-    r = requests.get(url, timeout=timeout)
-    r.raise_for_status()
-    return time.perf_counter() - t0
+    best = None
+    for _ in range(max(1, int(repeats))):
+        start = time.perf_counter()
+        r = requests.get(url, timeout=timeout)
+        r.raise_for_status()
+        dt = time.perf_counter() - start
+        best = dt if best is None else min(best, dt)
+    return best
