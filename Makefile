@@ -7,10 +7,10 @@ install:
 	pip install -r requirements.txt
 
 run:
-	chaos run experiment.json
+	SERVICE_URL=$$(minikube service podinfo -n chaos-poc --url | head -n1) PYTHONPATH=$(PWD) chaos run experiment.json
 
 report:
-	chaos report experiment.json ./chaos.log --export-format=html --output=report.html || true
+	SERVICE_URL=$$(minikube service podinfo -n chaos-poc --url | head -n1) PYTHONPATH=$(PWD) chaos report --export-format=pdf chaos-report.json report.pdf
 
 clean:
 	rm -f chaos.log report.html

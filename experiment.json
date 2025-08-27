@@ -7,7 +7,7 @@
     "kubeconfig_path": "~/.kube/config",
     "namespace": "chaos-poc",
     "app_label": "app=podinfo",
-    "service_url": "http://127.0.0.1:59813"
+    "service_url": "${env:SERVICE_URL}"
   },
   "steady-state-hypothesis": {
     "title": "Service is healthy and fast enough",
@@ -22,6 +22,22 @@
           "verify_tls": false,
           "url": "${service_url}/readyz",
           "method": "GET"
+        }
+      },
+      {
+        "type": "probe",
+        "name": "readyz-latency-under-150ms",
+        "tolerance": true,
+        "provider": {
+          "type": "python",
+          "module": "chaospoc.probes",
+          "func": "is_latency_under_seconds",
+          "arguments": {
+            "url": "${service_url}/readyz",
+            "threshold": 0.15,
+            "timeout": 2,
+            "repeats": 3
+          }
         }
       }
     ]

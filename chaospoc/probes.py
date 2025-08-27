@@ -1,14 +1,14 @@
 import time, requests
 
-def measure_latency_seconds(url: str, timeout: float = 2.0, repeats: int = 1) -> float:
+def is_latency_under_seconds(url: str, threshold: float, timeout: float = 2.0, repeats: int = 1) -> bool:
     """
-    Returns latency in seconds (float). Use with a 'range' tolerance in experiment.json.
+    Returns True when the best observed latency is below the provided threshold (in seconds).
     """
-    best = None
+    latency = None
     for _ in range(max(1, int(repeats))):
         start = time.perf_counter()
         r = requests.get(url, timeout=timeout)
         r.raise_for_status()
         dt = time.perf_counter() - start
-        best = dt if best is None else min(best, dt)
-    return best
+        latency = dt if latency is None else min(latency, dt)
+    return latency < threshold
